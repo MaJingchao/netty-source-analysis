@@ -1,0 +1,32 @@
+NioEventLoop/NioEventLoopGroup
+
+NioEventLoopGroup作为Reactor模式的Acceptor,负责接收链接，读取数据
+
+NioEventLoopGroup包含EventExecutor[] child数据，存储NioEventLoop对象，具体接收链接，读取数据的对象
+
+new NioEventLoopGroup的过程
+默认构造函数thread为0，executor为null，提供SelectorProvider.
+如果thread为0，则默认可用核心数*2
+executor为null，所以初始化为ThreadPerTaskExecutor。DefaultThreadFactory-->FastThreadLocalThread
+child赋值为new NioEventLoop
+EventExecutorChooserFactory.EventExecutorChooser=DefaultEventExecutorChooserFactory
+
+new NioEventLoop过程 
+设置SelectorProvider
+provider.opendSelector赋值selector
+Queue<Runnable> tailTasks赋值LinkedBlockingQueue
+赋值executor
+赋值taskQueue
+parent为NioEventLoopGroup
+
+重要方法：
+    execute
+    ->startThread
+    ->doStartThread
+    ->executor.executor
+    ---->(async)Runnable
+    ->SingleThreadEventor.run()
+    ->for循环，selector的select
+
+
+
