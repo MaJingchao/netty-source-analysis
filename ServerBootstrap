@@ -1,0 +1,27 @@
+ServerBootstrap
+
+初始化属性
+group->boss acceptor(用于接收连接)，worker acceptor(用于接收客户端的写入数据)
+channel->NioServerSocketChannel
+option->
+handler->
+childHandler->设置在worker acceptor的处理handler
+
+ServerBootstrap.bind->ReflectiveChannelFactory.newChannel
+    ->init,channel.pipeline.addLast(new ChannelInitializer)
+    ->group().register,就是Unsafe.register
+    ---->(async)register0
+    ->pipeline.fireChannelRegister
+    ->ChannelInitializer.initChannel
+        --->(async)pipeline.addLast(new ServerBootstrapAcceptor)
+    ->doBind0
+    --->(async)channel.bind
+    ->pipeline.fireChannelActive
+
+
+
+ServerBootstrap.bind之中，有4个任务
+1.register0,会调用fireChannelRegister，会调用hannelInitializer.initChannel,并向EventoLoog.execut中添加task
+2.执行向pipeline总添加ServerBootstrapAcceptor
+3.bind0中添加的任务，channel.bind
+4.channel.bind中添加的任务，fireChannelActive
