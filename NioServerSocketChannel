@@ -1,0 +1,39 @@
+NioServerSocketChannel/NioSocketChannel
+
+new过程
+SelectorProvider.openServerSocketChannel返回java.nio.channels.ServerSocketChannel
+SelectableChannel赋值ServerSocketChannel
+readInterestOp=SelectKey.OP_ACCEPT
+parent=null
+id=newId
+unsafe=newUnsafe
+pipeline=newChannelPipeline
+SelectableChannel.configureBlocking为fasle（非阻塞）
+设置config，当前channel，ServerSocket
+
+主要继承关系如图
+                    AbstractChannel
+                            |
+                    AbstractNioChannel
+                    |               |
+AbstractNioMessageChannel   AbstractNioByteChannel
+                |                       |
+NioServerSocketChannel          NioSocketChannel
+
+
+                                AbstractChannel.AbstractUnsafe
+                                            |
+                                AbstractNioChannel.NioUnsafe
+                                    |                      |
+AbstractNioMessageChannel.NioMessageUnsafe              AbstractNioByteChannel.NioByteUnsafe
+                                                                |
+                                                        NioSocketChannel.NioSocketChannelUnsafe
+
+重要方法：
+NioMessageUnsafe.read：在client连接后，selector获取到SelectKey为read，调用此方法
+    调用doMessageRead，javaChannel.accept，返回java.nio.channels.SocketChannel
+    SocketChannel.add->new io.netty.channel.socket.nio.NioSocketChannel
+
+NioByteUnsafe.read：在client向服务端写入数据时调用此方法，在NioMessageUnsafe.read注册的NioSocketChannel之后
+    ByteBuf的创建，读取字节doReadBytes
+    pipeline.fireChannelRead
